@@ -46,8 +46,11 @@ UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 
 AnalogIn lm35(A1);
 
-DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {PB_3, PB_5, PC_7, PA_15};
-DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {PB_12, PB_13, PB_15, PC_6};
+//DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {PB_3, PB_5, PC_7, PA_15};
+//DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {PB_12, PB_13, PB_15, PC_6};
+
+std::vector<DigitalOut> keypadRowPins = {PB_3, PB_5, PC_7, PA_15};
+std::vector<DigitalIn> keypadColPins  = {PB_12, PB_13, PB_15, PC_6};
 
 //=====[Declaration and initialization of public global variables]=============
 
