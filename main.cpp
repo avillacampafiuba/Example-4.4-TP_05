@@ -131,6 +131,10 @@ int main()
         uartTask();
         eventLogUpdate();
         delay(TIME_INCREMENT_MS);
+
+        // Cada 10 ms (TIME_INVREMENT_MS) se llama a alarmDeactivationUpdate, que ,si el sistema no está
+        // bloqueado por 5 códigos incorrectos, llama a su vez a matrixKeypadUpdate, que es la que 
+        // controla la máquina de estados del teclado matricial.
     }
 }
 
@@ -139,6 +143,7 @@ int main()
 void inputsInit()
 {
     lm35ReadingsArrayInit();
+    mq2.mode(PullUp);
     alarmTestButton.mode(PullDown);
     sirenPin.mode(OpenDrain);
     sirenPin.input();
@@ -556,6 +561,9 @@ char matrixKeypadScan()
 
         for( col=0; col<KEYPAD_NUMBER_OF_COLS; col++ ) {
             if( keypadColPins[col] == OFF ) {
+                printf("\nFila: %d", row);
+                printf("\nColumna: %d", col);
+                printf("\nTecla: %c", matrixKeypadIndexToCharArray[row*KEYPAD_NUMBER_OF_ROWS + col]);
                 return matrixKeypadIndexToCharArray[row*KEYPAD_NUMBER_OF_ROWS + col];
             }
         }
@@ -567,6 +575,8 @@ char matrixKeypadUpdate()
 {
     char keyDetected = '\0';
     char keyReleased = '\0';
+
+    printf("\n\nEstado actual: %d", matrixKeypadState);
 
     switch( matrixKeypadState ) {
 
@@ -580,6 +590,7 @@ char matrixKeypadUpdate()
         break;
 
     case MATRIX_KEYPAD_DEBOUNCE:
+        printf("\nTiempo de debounce: %d", accumulatedDebounceMatrixKeypadTime);
         if( accumulatedDebounceMatrixKeypadTime >=
             DEBOUNCE_KEY_TIME_MS ) {
             keyDetected = matrixKeypadScan();
