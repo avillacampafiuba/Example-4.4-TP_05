@@ -31,6 +31,12 @@ typedef struct systemEvent {
     char typeOfEvent[EVENT_NAME_MAX_LENGTH];
 } systemEvent_t;
 
+typedef struct {
+    int MACHINE_STATE = 0;
+    int ROW = 0;
+    int COLUMN = 0;
+} message_t;
+
 //=====[Declaration and initialization of public global objects]===============
 
 DigitalIn alarmTestButton(BUTTON1);
@@ -46,11 +52,11 @@ UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 
 AnalogIn lm35(A1);
 
-//DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {PB_3, PB_5, PC_7, PA_15};
-//DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {PB_12, PB_13, PB_15, PC_6};
+DigitalOut keypadRowPins[KEYPAD_NUMBER_OF_ROWS] = {PB_3, PB_5, PC_7, PA_15};
+DigitalIn keypadColPins[KEYPAD_NUMBER_OF_COLS]  = {PB_12, PB_13, PB_15, PC_6};
 
-std::vector<DigitalOut> keypadRowPins = {PB_3, PB_5, PC_7, PA_15};
-std::vector<DigitalIn> keypadColPins  = {PB_12, PB_13, PB_15, PC_6};//
+//std::vector<DigitalOut> keypadRowPins = {PB_3, PB_5, PC_7, PA_15};
+//std::vector<DigitalIn> keypadColPins  = {PB_12, PB_13, PB_15, PC_6};//
 
 //=====[Declaration and initialization of public global variables]=============
 
@@ -93,6 +99,8 @@ matrixKeypadState_t matrixKeypadState;
 
 int eventsIndex            = 0;
 systemEvent_t arrayOfStoredEvents[EVENT_MAX_STORAGE];
+
+message_t message;
 
 //=====[Declarations (prototypes) of public functions]=========================
 
@@ -227,6 +235,12 @@ void alarmDeactivationUpdate()
 {
     if ( numberOfIncorrectCodes < 5 ) {
         char keyReleased = matrixKeypadUpdate();
+        printf("\n\nEstado de la máquina: %d", message.MACHINE_STATE);
+        if( message.MACHINE_STATE != 0 ){
+            printf("\nFila: %d", message.ROW);
+            printf("\nColumna: %d", message.COLUMN);
+            printf("\nTecla: %c", matrixKeypadIndexToCharArray[message.ROW*KEYPAD_NUMBER_OF_ROWS + message.COLUMN]);
+        }
         if( keyReleased != '\0' && keyReleased != '#' ) {
             keyPressed[matrixKeypadCodeIndex] = keyReleased;
             if( matrixKeypadCodeIndex >= NUMBER_OF_KEYS ) {
@@ -561,9 +575,11 @@ char matrixKeypadScan()
 
         for( col=0; col<KEYPAD_NUMBER_OF_COLS; col++ ) {
             if( keypadColPins[col] == OFF ) {
-                printf("\nFila: %d", row);
-                printf("\nColumna: %d", col);
-                printf("\nTecla: %c", matrixKeypadIndexToCharArray[row*KEYPAD_NUMBER_OF_ROWS + col]);
+                //printf("\nFila: %d", row);
+                //printf("\nColumna: %d", col);
+                //printf("\nTecla: %c", matrixKeypadIndexToCharArray[row*KEYPAD_NUMBER_OF_ROWS + col]);
+                message.ROW = row;
+                message.COLUMN = col;
                 return matrixKeypadIndexToCharArray[row*KEYPAD_NUMBER_OF_ROWS + col];
             }
         }
@@ -576,7 +592,8 @@ char matrixKeypadUpdate()
     char keyDetected = '\0';
     char keyReleased = '\0';
 
-    printf("\n\nEstado actual: %d", matrixKeypadState);
+    //printf("\n\nEstado actual: %d", matrixKeypadState);
+    message.MACHINE_STATE = matrixKeypadState;
 
     switch( matrixKeypadState ) {
 
@@ -590,7 +607,7 @@ char matrixKeypadUpdate()
         break;
 
     case MATRIX_KEYPAD_DEBOUNCE:
-        printf("\nTiempo de debounce: %d", accumulatedDebounceMatrixKeypadTime);
+        //printf("\nTiempo de debounce: %d", accumulatedDebounceMatrixKeypadTime);
         if( accumulatedDebounceMatrixKeypadTime >=
             DEBOUNCE_KEY_TIME_MS ) {
             keyDetected = matrixKeypadScan();
