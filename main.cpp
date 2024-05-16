@@ -369,6 +369,12 @@ void uartTask()
         case 'S':
             struct tm rtcTime;
             int strIndex;
+
+            // Para inicializar el RTC es necesario indicarle, como se hace abajo, la fecha y hora exacta.
+            // Si la placa se desenergiza el RTC pierde la cuenta, y por lo tanto sería necesaria volver a configurarlo.
+            // Para evitar esto se debe mantener energizada la placa o tener de forma externa una batería que mantenga energizado el RTC.
+            // Otra opción es contar con un módulo de RTC externo, que puede contar con su propia batería que mantenga
+            // la alimentación solo de ese módulo.
                     
             uartUsb.write( "\r\nType four digits for the current year (YYYY): ", 48 );
             for( strIndex=0; strIndex<4; strIndex++ ) {
