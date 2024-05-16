@@ -374,7 +374,7 @@ void uartTask()
             // Si la placa se desenergiza el RTC pierde la cuenta, y por lo tanto sería necesaria volver a configurarlo.
             // Para evitar esto se debe mantener energizada la placa o tener de forma externa una batería que mantenga energizado el RTC.
             // Otra opción es contar con un módulo de RTC externo, que puede contar con su propia batería que mantenga
-            // la alimentación solo de ese módulo.
+            // la alimentación solo de ese módulo. Ese módulo externo se comunica con I2C.
                     
             uartUsb.write( "\r\nType four digits for the current year (YYYY): ", 48 );
             for( strIndex=0; strIndex<4; strIndex++ ) {
